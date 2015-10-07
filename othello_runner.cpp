@@ -14,7 +14,7 @@
 const size_t BUFSIZE = 64;
 const char * NONCE_SOURCE = "qawsedrftgyhujikolp";
 
-// 0ˆÈãn–¢–‚Ì®”‚ğ•Ô‚·
+// 0ä»¥ä¸Šnæœªæº€ã®æ•´æ•°ã‚’è¿”ã™
 int rand_int(int n){
 	int result;
 	do{
@@ -33,7 +33,7 @@ int main(int argc, char ** argv){
 	
 	Othello::Placement placement(true);
 	
-	int player; // 1 or 2 (argv[1] / argv[2] ‚Æw’è‚·‚é‚½‚ß)
+	int player; // 1 or 2 (argv[1] / argv[2] ã¨æŒ‡å®šã™ã‚‹ãŸã‚)
 	int opponent = 1;
 	char player_color, opponent_color;
 	
@@ -41,7 +41,7 @@ int main(int argc, char ** argv){
 	char buf[BUFSIZE];
 	char received_nonce[BUFSIZE];
 	int received_c = -1, received_r = -1;
-	bool last_choice_is_pass = false; // ’¼‘O‚ªƒpƒX‚¾‚Á‚½‚±‚Æ‚ğ•\‚·B2˜A‘±ƒpƒX‚È‚çI—¹
+	bool last_choice_is_pass = false; // ç›´å‰ãŒãƒ‘ã‚¹ã ã£ãŸã“ã¨ã‚’è¡¨ã™ã€‚2é€£ç¶šãƒ‘ã‚¹ãªã‚‰çµ‚äº†
 	
 	for(;;){
 		player = opponent;
@@ -50,13 +50,13 @@ int main(int argc, char ** argv){
 		player_color = (player == 1) ? Othello::BLACK : Othello::WHITE;
 		opponent_color = (opponent == 1) ? Othello::BLACK : Othello::WHITE;
 		
-		// •\¦
+		// è¡¨ç¤º
 		std::cout << "----------" << std::endl;
 		placement.display(received_r, received_c);
 		std::cout << "[Press Enter Key]" << std::endl;
 		fgets(buf, BUFSIZE, stdin);
 		
-		// ƒRƒ}ƒ“ƒhƒ‰ƒCƒ“‚ğ¶¬
+		// ã‚³ãƒãƒ³ãƒ‰ãƒ©ã‚¤ãƒ³ã‚’ç”Ÿæˆ
 		nonce.assign(1, 'a' + rand_int(26));
 		nonce.append(1, 'a' + rand_int(26));
 		
@@ -64,7 +64,7 @@ int main(int argc, char ** argv){
 		command.append(" ");
 		command.append(nonce); // nonce
 		command.append(" ");
-		command.append(1, (player == 1 ? 'B' : 'W')); // ‚Ç‚¿‚ç‚Ìè”Ô‚©
+		command.append(1, (player == 1 ? 'B' : 'W')); // ã©ã¡ã‚‰ã®æ‰‹ç•ªã‹
 		command.append(" ");
 		for(int i = 0; i < Othello::SIZE; ++i){
 			for(int j = 0; j < Othello::SIZE; ++j){
@@ -72,14 +72,14 @@ int main(int argc, char ** argv){
 			}
 		}
 		
-		// ƒRƒ}ƒ“ƒh‚ğÀs
+		// ã‚³ãƒãƒ³ãƒ‰ã‚’å®Ÿè¡Œ
 		FILE * fp = POPEN(command.c_str(), "rb");
 		if(fp == NULL){
 			std::cerr << "Failed in running: \"" << command << "\"" << std::endl;
 			return 1;
 		}
 		
-		// ÀsŒ‹‰Ê‚ğ“Ç‚İ‚Ş
+		// å®Ÿè¡Œçµæœã‚’èª­ã¿è¾¼ã‚€
 		fgets(buf, BUFSIZE, fp);
 		
 		received_nonce[0] = '\0';
@@ -93,7 +93,7 @@ int main(int argc, char ** argv){
 		}
 		
 		if(received_c == -1 && received_r == -1){
-			// ‚à‚¤’u‚¯‚éêŠ‚ª‚È‚¢
+			// ã‚‚ã†ç½®ã‘ã‚‹å ´æ‰€ãŒãªã„
 			std::cout << "Player" << player << " passed his/her turn." << std::endl;
 			if(last_choice_is_pass) break;
 			last_choice_is_pass = true;
@@ -113,8 +113,8 @@ int main(int argc, char ** argv){
 			return 1;
 		}
 		
-		// ‚»‚ÌêŠ‚ÉÎ‚ğ’u‚¢‚Ä— •Ô‚·
-		// 8•ûŒü‚ÉÎ‚ğL‚Î‚µ‚Ä‚¢‚­
+		// ãã®å ´æ‰€ã«çŸ³ã‚’ç½®ã„ã¦è£è¿”ã™
+		// 8æ–¹å‘ã«çŸ³ã‚’ä¼¸ã°ã—ã¦ã„ã
 		int t;
 		bool flipped = false;
 		
@@ -122,24 +122,24 @@ int main(int argc, char ** argv){
 			for(int x = -1; x <= 1; ++x){
 				if(x == 0 && y == 0) continue;
 				
-				// ‚Ü‚¸A—×‚ª‘Šè‚ÌÎ‚Å‚È‚¯‚ê‚ÎAÎ‚Í— •Ô‚¹‚È‚¢
+				// ã¾ãšã€éš£ãŒç›¸æ‰‹ã®çŸ³ã§ãªã‘ã‚Œã°ã€çŸ³ã¯è£è¿”ã›ãªã„
 				if(placement.get(received_r + y, received_c + x) != opponent_color){
 					continue;
 				}
 				
-				// ‚»‚µ‚ÄA‚»‚±‚©‚çÎ‚ğL‚Î‚µ‚Ä‚¢‚Á‚ÄA
-				// ‘Îí‘Šè‚ÌÎ‚ª‘±‚¢‚ÄA‚»‚Ì‚ ‚Æ©•ª‚ÌÎ‚ªŒ»‚ê‚ê‚Î‚æ‚¢
+				// ãã—ã¦ã€ãã“ã‹ã‚‰çŸ³ã‚’ä¼¸ã°ã—ã¦ã„ã£ã¦ã€
+				// å¯¾æˆ¦ç›¸æ‰‹ã®çŸ³ãŒç¶šã„ã¦ã€ãã®ã‚ã¨è‡ªåˆ†ã®çŸ³ãŒç¾ã‚Œã‚Œã°ã‚ˆã„
 				t = 2;
 				while(placement.get(received_r + y*t, received_c + x*t) == opponent_color){
 					++t;
 				}
 				
 				if(placement.get(received_r + y*t, received_c + x*t) == player_color){
-					// TODO: ‚±‚±‚ğ•Û—¯‚·‚é
-					// ‚Ü‚¸Î‚ğ’u‚­
+					// TODO: ã“ã“ã‚’ä¿ç•™ã™ã‚‹
+					// ã¾ãšçŸ³ã‚’ç½®ã
 					placement.put(received_r, received_c, player_color);
 					
-					// Î‚ğ— •Ô‚·
+					// çŸ³ã‚’è£è¿”ã™
 					for(; t >= 1; --t){
 						placement.put(received_r + y*t, received_c + x*t, player_color);
 					}
@@ -154,7 +154,7 @@ int main(int argc, char ** argv){
 		}
 	}
 	
-	// I—¹BŒ‹‰Ê‚ğ’²‚×‚é
+	// çµ‚äº†ã€‚çµæœã‚’èª¿ã¹ã‚‹
 	int b_count = 0, w_count = 0;
 	
 	for(int i = 0; i < Othello::SIZE; ++i){
