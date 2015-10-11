@@ -7,7 +7,6 @@ namespace Othello{
 	const char WHITE = 2; // 白が置かれている
 	const char EMPTY = 0; // 石は置かれていない
 	const char INVALID = 4; // 無効な座標を指定した場合など
-	const char * NAME = ".BW"; // 石の名前。NAME[foo] (fooはBLACK, WHITE, EMPTYのいずれか)
 	const int SIZE = 8; // 盤面の大きさ
 	
 	class InvalidArgumentException{
@@ -15,14 +14,21 @@ namespace Othello{
 		InvalidArgumentException(){}
 	};
 	
+	// 石の番号（BLACK, WHITEなどの定数）から、石の名前を表す文字（'B', 'W'など）を得る。
+	// エラーチェックは行っていない。
+	char get_piece_name(char color){
+		return ".BW"[static_cast<size_t>(color)];
+	}
+	
 	// 石の配置
 	class Placement{
 	private:
 		char places_[SIZE][SIZE];
 	public:
-		// 初期盤面を生成
+		// 何もない盤面を生成
 		Placement(){}
 		
+		// 初期盤面を生成
 		Placement(bool initialized){
 			if(initialized){
 				for(int i = 0; i < SIZE; ++i){
@@ -65,7 +71,7 @@ namespace Othello{
 						std::cout << ' ';
 					}
 					if(j == SIZE) break;
-					std::cout << NAME[places_[i][j]];
+					std::cout << get_piece_name(places_[i][j]);
 				}
 				std::cout << std::endl;
 			}

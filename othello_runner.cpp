@@ -147,7 +147,7 @@ int main(int argc, char ** argv){
 		command.append(" ");
 		for(int i = 0; i < Othello::SIZE; ++i){
 			for(int j = 0; j < Othello::SIZE; ++j){
-				command.append(1, Othello::NAME[placement.get(i, j)]);
+				command.append(1, Othello::get_piece_name(placement.get(i, j)));
 			}
 		}
 		
