@@ -1,4 +1,4 @@
-CPP=g++
+CPP=g++ -std=c++14
 CPPOPT=-Wall -g
 
 default: othello_sample othello_runner

@@ -3,32 +3,32 @@
 #include <cstring>
 
 namespace Othello{
-	const char BLACK = 1; // •‚ª’u‚©‚ê‚Ä‚¢‚é
-	const char WHITE = 2; // ”’‚ª’u‚©‚ê‚Ä‚¢‚é
-	const char EMPTY = 0; // Î‚Í’u‚©‚ê‚Ä‚¢‚È‚¢
-	const char INVALID = 4; // –³Œø‚ÈÀ•W‚ğw’è‚µ‚½ê‡‚È‚Ç
-	const int SIZE = 8; // ”Õ–Ê‚Ì‘å‚«‚³
+	const char BLACK = 1; // é»’ãŒç½®ã‹ã‚Œã¦ã„ã‚‹
+	const char WHITE = 2; // ç™½ãŒç½®ã‹ã‚Œã¦ã„ã‚‹
+	const char EMPTY = 0; // çŸ³ã¯ç½®ã‹ã‚Œã¦ã„ãªã„
+	const char INVALID = 4; // ç„¡åŠ¹ãªåº§æ¨™ã‚’æŒ‡å®šã—ãŸå ´åˆãªã©
+	const int SIZE = 8; // ç›¤é¢ã®å¤§ãã•
 	
 	class InvalidArgumentException{
 	public:
 		InvalidArgumentException(){}
 	};
 	
-	// Î‚Ì”Ô†iBLACK, WHITE‚È‚Ç‚Ì’è”j‚©‚çAÎ‚Ì–¼‘O‚ğ•\‚·•¶ši'B', 'W'‚È‚Çj‚ğ“¾‚éB
-	// ƒGƒ‰[ƒ`ƒFƒbƒN‚Ís‚Á‚Ä‚¢‚È‚¢B
+	// çŸ³ã®ç•ªå·ï¼ˆBLACK, WHITEãªã©ï¼‰ã‚’çŸ³ã®æ–‡å­—ï¼ˆ'B', 'W'ãªã©ï¼‰ã«å¤‰æ›
+	// å¼•æ•°ãŒä¸æ­£ã§ã‚‚ç‰¹æ®µã®ãƒã‚§ãƒƒã‚¯ã¯ã—ã¦ã„ãªã„
 	char get_piece_name(char color){
 		return ".BW"[static_cast<size_t>(color)];
 	}
 	
-	// Î‚Ì”z’u
+	// çŸ³ã®é…ç½®
 	class Placement{
 	private:
 		char places_[SIZE][SIZE];
 	public:
-		// ‰½‚à‚È‚¢”Õ–Ê‚ğ¶¬
+		// ç©ºã®ç›¤é¢ã‚’ç”Ÿæˆ
 		Placement(){}
 		
-		// ‰Šú”Õ–Ê‚ğ¶¬
+		// åˆæœŸç›¤é¢ã‚’ç”Ÿæˆ
 		Placement(bool initialized){
 			if(initialized){
 				for(int i = 0; i < SIZE; ++i){
@@ -43,23 +43,23 @@ namespace Othello{
 			}
 		}
 		
-		// ˆÊ’u‚ğw’è‚µ‚ÄÎ‚ğİ’u
-		// ¦uİ’uv‚Æ‚ÍA’P‚É‚»‚ÌêŠ‚É‚»‚ÌÎ‚ª‚ ‚éó‘Ô‚É‚·‚é‚¾‚¯‚Å
-		//   ƒQ[ƒ€‚Ìƒ‹[ƒ‹‚Æ‚µ‚Ä’u‚­i— •Ô‚µ‚½‚è‚à‚·‚éj‚í‚¯‚Å‚Í‚È‚¢
+		// ä½ç½®ã‚’æŒ‡å®šã—ã¦çŸ³ã‚’è¨­ç½®
+		// â€»ã€Œè¨­ç½®ã€ã¨ã¯ã€å˜ã«ãã®å ´æ‰€ã«ãã®çŸ³ãŒã‚ã‚‹çŠ¶æ…‹ã«ã™ã‚‹ã ã‘ã§
+		//   ã‚²ãƒ¼ãƒ ã®ãƒ«ãƒ¼ãƒ«ã¨ã—ã¦ç½®ãï¼ˆè£è¿”ã—ãŸã‚Šã‚‚ã™ã‚‹ï¼‰ã‚ã‘ã§ã¯ãªã„
 		inline bool put(int i, int j, char piece){
 			if(i < 0 || i >= SIZE || j < 0 || j >= SIZE) return false;
 			places_[i][j] = piece;
 			return true;
 		}
 		
-		// ˆÊ’u‚ğw’è‚µ‚ÄÎ‚ğæ“¾
+		// ä½ç½®ã‚’æŒ‡å®šã—ã¦çŸ³ã‚’å–å¾—
 		inline char get(int i, int j) const{
 			if(i < 0 || i >= SIZE || j < 0 || j >= SIZE) return INVALID;
 			return places_[i][j];
 		}
 		
-		// •\¦‚·‚é
-		// current_r, current_c‚ÍuÎ‚ª‚Ç‚±‚É’u‚©‚ê‚½‚©viÈ—ª‰Â”\j
+		// è¡¨ç¤ºã™ã‚‹
+		// current_r, current_cã¯ã€ŒçŸ³ãŒã©ã“ã«ç½®ã‹ã‚ŒãŸã‹ã€ï¼ˆçœç•¥å¯èƒ½ï¼‰
 		void display(int current_r, int current_c) const{
 			for(int i = 0; i < SIZE; ++i){
 				for(int j = 0; j <= SIZE; ++j){
@@ -82,7 +82,7 @@ namespace Othello{
 		}
 	};
 	
-	// ”Õ–ÊiŸ‚ª‚Ç‚¿‚ç‚Ì”Ô‚©A‚È‚Ç‚Ìî•ñŠÜ‚Şj
+	// ç›¤é¢ï¼ˆæ¬¡ãŒã©ã¡ã‚‰ã®ç•ªã‹ã€ãªã©ã®æƒ…å ±å«ã‚€ï¼‰
 	class Board{
 	public:
 		static void error_and_throw(const char * progname, size_t error_line){
@@ -99,14 +99,14 @@ namespace Othello{
 		char turn_;
 		
 	public:
-		// ƒRƒ}ƒ“ƒhƒ‰ƒCƒ“ˆø”‚©‚ç¶¬
+		// ã‚³ãƒãƒ³ãƒ‰ãƒ©ã‚¤ãƒ³å¼•æ•°ã‹ã‚‰ç”Ÿæˆ
 		Board(int argc, char ** argv){
 			if(argc != 4) error_and_throw(argv[0], __LINE__);
 			
-			// ƒ‰ƒ“ƒ_ƒ€‚È•¶š—ñi–{—ˆ“š‚¦‚ğ•Ô‚·‚×‚«ƒNƒ‰ƒCƒAƒ“ƒg‚ª“š‚¦‚ğ•Ô‚·‚æ‚¤‚Éj
+			// ãƒ©ãƒ³ãƒ€ãƒ ãªæ–‡å­—åˆ—ï¼ˆæœ¬æ¥ç­”ãˆã‚’è¿”ã™ã¹ãã‚¯ãƒ©ã‚¤ã‚¢ãƒ³ãƒˆãŒç­”ãˆã‚’è¿”ã™ã‚ˆã†ã«ï¼‰
 			nonce_.assign(argv[1]);
 			
-			// ‚Ç‚¿‚ç‚Ìè”Ô‚©
+			// ã©ã¡ã‚‰ã®æ‰‹ç•ªã‹
 			switch(argv[2][0]){
 			case 'B':
 				turn_ = BLACK;
@@ -119,7 +119,7 @@ namespace Othello{
 				break;
 			}
 			
-			// Œ»İ‚ÌÎ‚Ì”z’u
+			// ç¾åœ¨ã®çŸ³ã®é…ç½®
 			if(std::strlen(argv[3]) != SIZE * SIZE) error_and_throw(argv[0], __LINE__);
 			
 			for(int i = 0; i < SIZE * SIZE; ++i){
@@ -140,13 +140,13 @@ namespace Othello{
 			}
 		}
 		
-		// ‚»‚ÌêŠ‚É’u‚©‚ê‚Ä‚¢‚éÎ
+		// ãã®å ´æ‰€ã«ç½®ã‹ã‚Œã¦ã„ã‚‹çŸ³
 		inline char place(int i, int j) const{
 			return pl_.get(i, j);
 		}
 		
-		// Î‚ğ’u‚­‚±‚Æ‚É‘Î‰‚·‚éo—Í‚ğs‚¤
-		// ‚Ç‚±‚É‚à’u‚¯‚È‚¢ê‡Aˆø”‚È‚µ‚ÅŒÄ‚Ño‚·
+		// çŸ³ã‚’ç½®ãã“ã¨ã«å¯¾å¿œã™ã‚‹å‡ºåŠ›ã‚’è¡Œã†
+		// ã©ã“ã«ã‚‚ç½®ã‘ãªã„å ´åˆã€å¼•æ•°ãªã—ã§å‘¼ã³å‡ºã™
 		void put(int i, int j) const{
 			std::cout << nonce_ << " " << i << " " << j << std::endl;
 		}
@@ -155,12 +155,12 @@ namespace Othello{
 			std::cout << nonce_ << std::endl;
 		}
 		
-		// ©•ª‚ÌÎ‚ÌF
+		// è‡ªåˆ†ã®çŸ³ã®è‰²
 		inline char my_color(void) const{
 			return turn_;
 		}
 		
-		// ‘Îí‘Šè‚ÌÎ‚ÌF
+		// å¯¾æˆ¦ç›¸æ‰‹ã®çŸ³ã®è‰²
 		inline char opponent_color(void) const{
 			return(turn_ == BLACK ? WHITE : BLACK);
 		}

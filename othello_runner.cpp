@@ -14,7 +14,7 @@
 
 const size_t BUFSIZE = 64;
 
-// 0ˆÈãn–¢–‚Ì®”‚ğ•Ô‚·
+// 0ä»¥ä¸Šnæœªæº€ã®æ•´æ•°ã‚’è¿”ã™
 int rand_int(int n){
 	int result;
 	do{
@@ -23,12 +23,12 @@ int rand_int(int n){
 	return result;
 }
 
-// ÀsŒ‹‰Ê‚ğ“Ç‚İ‚ŞB
-// •Ô‚Á‚Ä‚­‚é•¶š—ñ‚ÍAˆÈ‰º‚Ì‚¢‚¸‚ê‚©‚Å‚È‚¯‚ê‚Î‚È‚ç‚È‚¢B
-// Eunonce ’u‚­êŠ(s) ’u‚­êŠ(—ñ)vi’u‚¯‚éê‡j
-// Eunoncevi‚Ç‚±‚É‚à’u‚¯‚È‚¢ê‡j
+// å®Ÿè¡Œçµæœã‚’èª­ã¿è¾¼ã‚€ã€‚
+// è¿”ã£ã¦ãã‚‹æ–‡å­—åˆ—ã¯ã€ä»¥ä¸‹ã®ã„ãšã‚Œã‹ã§ãªã‘ã‚Œã°ãªã‚‰ãªã„ã€‚
+// ãƒ»ã€Œnonce ç½®ãå ´æ‰€(è¡Œ) ç½®ãå ´æ‰€(åˆ—)ã€ï¼ˆç½®ã‘ã‚‹å ´åˆï¼‰
+// ãƒ»ã€Œnonceã€ï¼ˆã©ã“ã«ã‚‚ç½®ã‘ãªã„å ´åˆï¼‰
 bool parse_sent_string(const char * buf, std::string & nonce, int & r, int & c){
-	// ‚Ü‚¸AƒXƒy[ƒX‚Å‹æØ‚é‚½‚ßAƒXƒy[ƒX‚ÌˆÊ’u‚ğ—ñ‹“‚·‚é
+	// ã¾ãšã€ã‚¹ãƒšãƒ¼ã‚¹ã§åŒºåˆ‡ã‚‹ãŸã‚ã€ã‚¹ãƒšãƒ¼ã‚¹ã®ä½ç½®ã‚’åˆ—æŒ™ã™ã‚‹
 	std::vector<char *> spaces;
 	char *end_r, *end_c;
 	
@@ -40,18 +40,18 @@ bool parse_sent_string(const char * buf, std::string & nonce, int & r, int & c){
 	
 	switch(spaces.size()){
 	case 0:
-		// buf’†‚ÉƒXƒy[ƒX‚ª‚È‚¢‚à‚¤’u‚¯‚éêŠ‚ª‚È‚¢ibuf‘S‘Ì‚ªnoncej
+		// bufä¸­ã«ã‚¹ãƒšãƒ¼ã‚¹ãŒãªã„ï¼ã‚‚ã†ç½®ã‘ã‚‹å ´æ‰€ãŒãªã„ï¼ˆbufå…¨ä½“ãŒnonceï¼‰
 		nonce.assign(buf);
 		r = -1;
 		c = -1;
 		return true;
 	case 2:
-		// Î‚ª’u‚©‚ê‚é
+		// çŸ³ãŒç½®ã‹ã‚Œã‚‹
 		nonce.assign(buf, spaces[0] - buf);
 		r = static_cast<int>(std::strtol(spaces[0] + 1, &end_r, 10));
 		c = static_cast<int>(std::strtol(spaces[1] + 1, &end_c, 10));
 		
-		// ”’l‚ğw’è‚·‚×‚«•”•ª‚Å”šˆÈŠO‚ªŒ©‚Â‚©‚Á‚½ê‡A•s³‚ÈƒtƒH[ƒ}ƒbƒg
+		// æ•°å€¤ã‚’æŒ‡å®šã™ã¹ãéƒ¨åˆ†ã§æ•°å­—ä»¥å¤–ãŒè¦‹ã¤ã‹ã£ãŸå ´åˆã€ä¸æ­£ãªãƒ•ã‚©ãƒ¼ãƒãƒƒãƒˆ
 		if(end_r != spaces[1] || end_c != buf + std::strlen(buf)){
 			return false;
 		}
@@ -62,10 +62,10 @@ bool parse_sent_string(const char * buf, std::string & nonce, int & r, int & c){
 	}
 }
 
-// (r, c)‚ÌêŠ‚Éplayer‚ªÎ‚ğ’u‚«A— •Ô‚·B
-// ˆê‚Â‚Å‚à— •Ô‚µ‚½‚çtrue, ‚»‚¤‚Å‚È‚¯‚ê‚Îfalse
+// (r, c)ã®å ´æ‰€ã«playerãŒçŸ³ã‚’ç½®ãã€è£è¿”ã™ã€‚
+// ä¸€ã¤ã§ã‚‚è£è¿”ã—ãŸã‚‰true, ãã†ã§ãªã‘ã‚Œã°false
 bool flip_stones(Othello::Placement & placement, int r, int c, char player_color, char opponent_color){
-	// 8•ûŒü‚ÉÎ‚ğL‚Î‚µ‚Ä‚¢‚­
+	// 8æ–¹å‘ã«çŸ³ã‚’ä¼¸ã°ã—ã¦ã„ã
 	int t;
 	bool flipped = false;
 	
@@ -73,24 +73,24 @@ bool flip_stones(Othello::Placement & placement, int r, int c, char player_color
 		for(int x = -1; x <= 1; ++x){
 			if(x == 0 && y == 0) continue;
 			
-			// ‚Ü‚¸A—×‚ª‘Šè‚ÌÎ‚Å‚È‚¯‚ê‚ÎAÎ‚Í— •Ô‚¹‚È‚¢
+			// ã¾ãšã€éš£ãŒç›¸æ‰‹ã®çŸ³ã§ãªã‘ã‚Œã°ã€çŸ³ã¯è£è¿”ã›ãªã„
 			if(placement.get(r + y, c + x) != opponent_color){
 				continue;
 			}
 			
-			// ‚»‚µ‚ÄA‚»‚±‚©‚çÎ‚ğL‚Î‚µ‚Ä‚¢‚Á‚ÄA
-			// ‘Îí‘Šè‚ÌÎ‚ª‘±‚¢‚ÄA‚»‚Ì‚ ‚Æ©•ª‚ÌÎ‚ªŒ»‚ê‚ê‚Î‚æ‚¢
+			// ãã—ã¦ã€ãã“ã‹ã‚‰çŸ³ã‚’ä¼¸ã°ã—ã¦ã„ã£ã¦ã€
+			// å¯¾æˆ¦ç›¸æ‰‹ã®çŸ³ãŒç¶šã„ã¦ã€ãã®ã‚ã¨è‡ªåˆ†ã®çŸ³ãŒç¾ã‚Œã‚Œã°ã‚ˆã„
 			t = 2;
 			while(placement.get(r + y*t, c + x*t) == opponent_color){
 				++t;
 			}
 			
 			if(placement.get(r + y*t, c + x*t) == player_color){
-				// TODO: ‚±‚±‚ğ•Û—¯‚·‚é
-				// ‚Ü‚¸Î‚ğ’u‚­
+				// TODO: ã“ã“ã‚’ä¿ç•™ã™ã‚‹
+				// ã¾ãšçŸ³ã‚’ç½®ã
 				placement.put(r, c, player_color);
 				
-				// Î‚ğ— •Ô‚·
+				// çŸ³ã‚’è£è¿”ã™
 				for(; t >= 1; --t){
 					placement.put(r + y*t, c + x*t, player_color);
 				}
@@ -102,7 +102,7 @@ bool flip_stones(Othello::Placement & placement, int r, int c, char player_color
 	return flipped;
 }
 
-// ƒƒCƒ“
+// ãƒ¡ã‚¤ãƒ³
 int main(int argc, char ** argv){
 	if(argc != 3){
 		std::cerr << "Usage: " << argv[0] << " PROGRAM1 PROGRAM2" << std::endl;
@@ -113,14 +113,14 @@ int main(int argc, char ** argv){
 	
 	Othello::Placement placement(true);
 	
-	int player; // 1 or 2 (argv[1] / argv[2] ‚Æw’è‚·‚é‚½‚ß)
+	int player; // 1 or 2 (argv[1] / argv[2] ã¨æŒ‡å®šã™ã‚‹ãŸã‚)
 	int opponent = 1;
 	char player_color, opponent_color;
 	
 	std::string command, nonce, received_nonce;
 	char buf[BUFSIZE];
 	int received_c = -1, received_r = -1;
-	bool last_choice_is_pass = false; // ’¼‘O‚ªƒpƒX‚¾‚Á‚½‚±‚Æ‚ğ•\‚·B2˜A‘±ƒpƒX‚È‚çI—¹
+	bool last_choice_is_pass = false; // ç›´å‰ãŒãƒ‘ã‚¹ã ã£ãŸã“ã¨ã‚’è¡¨ã™ã€‚2é€£ç¶šãƒ‘ã‚¹ãªã‚‰çµ‚äº†
 	
 	for(;;){
 		player = opponent;
@@ -129,13 +129,13 @@ int main(int argc, char ** argv){
 		player_color = (player == 1) ? Othello::BLACK : Othello::WHITE;
 		opponent_color = (opponent == 1) ? Othello::BLACK : Othello::WHITE;
 		
-		// •\¦
+		// è¡¨ç¤º
 		std::cout << "----------" << std::endl;
 		placement.display(received_r, received_c);
 		std::cout << "[Press Enter Key]" << std::endl;
 		fgets(buf, BUFSIZE, stdin);
 		
-		// ƒRƒ}ƒ“ƒhƒ‰ƒCƒ“‚ğ¶¬
+		// ã‚³ãƒãƒ³ãƒ‰ãƒ©ã‚¤ãƒ³ã‚’ç”Ÿæˆ
 		nonce.assign(1, 'a' + rand_int(26));
 		nonce.append(1, 'a' + rand_int(26));
 		
@@ -143,7 +143,7 @@ int main(int argc, char ** argv){
 		command.append(" ");
 		command.append(nonce); // nonce
 		command.append(" ");
-		command.append(1, (player == 1 ? 'B' : 'W')); // ‚Ç‚¿‚ç‚Ìè”Ô‚©
+		command.append(1, (player == 1 ? 'B' : 'W')); // ã©ã¡ã‚‰ã®æ‰‹ç•ªã‹
 		command.append(" ");
 		for(int i = 0; i < Othello::SIZE; ++i){
 			for(int j = 0; j < Othello::SIZE; ++j){
@@ -151,7 +151,7 @@ int main(int argc, char ** argv){
 			}
 		}
 		
-		// ƒRƒ}ƒ“ƒh‚ğÀs‚µAŒ‹‰Ê‚ğó‚¯æ‚é
+		// ã‚³ãƒãƒ³ãƒ‰ã‚’å®Ÿè¡Œã—ã€çµæœã‚’å—ã‘å–ã‚‹
 		FILE * fp = POPEN(command.c_str(), "r");
 		if(fp == NULL){
 			std::cerr << "[ERROR] Failed in running: \"" << command << "\"" << std::endl;
@@ -161,14 +161,14 @@ int main(int argc, char ** argv){
 		fgets(buf, BUFSIZE, fp);
 		size_t buflen = std::strlen(buf);
 		
-		// ––”ö‚Ì‰üs‚ğœ‹
+		// æœ«å°¾ã®æ”¹è¡Œã‚’é™¤å»
 		if(buflen == 0 || buf[buflen - 1] != '\n'){
 			std::cerr << "[ERROR] Player " << player << ": Too long result received (received \"" << buf << "\") [" << static_cast<int>(buf[buflen - 1]) << "]" << std::endl;
 			return 1;
 		}
 		buf[buflen - 1] = '\0';
 		
-		// ó‚¯æ‚Á‚½•¶š—ñ‚ğ‰ğÍ
+		// å—ã‘å–ã£ãŸæ–‡å­—åˆ—ã‚’è§£æ
 		if(!parse_sent_string(buf, received_nonce, received_r, received_c)){
 			std::cerr << "[ERROR] Player " << player << ": Invalid format received: \"" << buf << "\" (Expected: \"NONCE ROWNUM COLNUM\")" << std::endl;
 			return 1;
@@ -179,11 +179,11 @@ int main(int argc, char ** argv){
 			return 1;
 		}
 		
-		// —LŒø‚Èè‚ªw‚³‚ê‚Ä‚¢‚é‚©Šm”F
+		// æœ‰åŠ¹ãªæ‰‹ãŒæŒ‡ã•ã‚Œã¦ã„ã‚‹ã‹ç¢ºèª
 		if(received_r == -1 || received_c == -1){
-			// ƒpƒX‚µ‚½ê‡
+			// ãƒ‘ã‚¹ã—ãŸå ´åˆ
 			std::cout << "Player" << player << " passed his/her turn." << std::endl;
-			if(last_choice_is_pass) break; // “ñl‚Æ‚àƒpƒX‚µ‚½ê‡‚ÍI—¹
+			if(last_choice_is_pass) break; // äºŒäººã¨ã‚‚ãƒ‘ã‚¹ã—ãŸå ´åˆã¯çµ‚äº†
 			last_choice_is_pass = true;
 			continue;
 		}
@@ -191,28 +191,28 @@ int main(int argc, char ** argv){
 		std::cout << "Player" << player << " put at (" << received_r << ", " << received_c << ")." << std::endl;
 		
 		if(received_c < 0 || received_c >= Othello::SIZE || received_r < 0 || received_r >= Othello::SIZE){
-			// À•W‚ª•s³‚Èê‡i”Õ–Ê‚Ì”ÍˆÍŠOj
+			// åº§æ¨™ãŒä¸æ­£ãªå ´åˆï¼ˆç›¤é¢ã®ç¯„å›²å¤–ï¼‰
 			std::cerr << "[ERROR] Player " << player << ": Invalid coordinates received: " << received_r << "," << received_c << std::endl;
 			return 1;
 		}
 		
 		if(placement.get(received_r, received_c) != Othello::EMPTY){
-			// Î‚ª’u‚©‚ê‚Ä‚¢‚È‚¢êŠˆÈŠO‚É’u‚±‚¤‚Æ‚µ‚½ê‡
+			// çŸ³ãŒç½®ã‹ã‚Œã¦ã„ãªã„å ´æ‰€ä»¥å¤–ã«ç½®ã“ã†ã¨ã—ãŸå ´åˆ
 			std::cerr << "[ERROR] Player " << player << ": Piece already exists" << std::endl;
 			return 1;
 		}
 		
 		last_choice_is_pass = false;
 		
-		// ‚»‚ÌêŠ‚ÉÎ‚ğ’u‚¢‚Ä— •Ô‚·
+		// ãã®å ´æ‰€ã«çŸ³ã‚’ç½®ã„ã¦è£è¿”ã™
 		if(!flip_stones(placement, received_r, received_c, player_color, opponent_color)){
-			// ˆê‚Â‚àÎ‚ª— •Ô‚ç‚È‚©‚Á‚½ê‡‚Í”½‘¥
+			// ä¸€ã¤ã‚‚çŸ³ãŒè£è¿”ã‚‰ãªã‹ã£ãŸå ´åˆã¯åå‰‡
 			std::cerr << "Player " << player << ": No stone flipped" << std::endl;
 			return 1;
 		}
 	}
 	
-	// I—¹BŒ‹‰Ê‚ğ’²‚×‚é
+	// çµ‚äº†ã€‚çµæœã‚’èª¿ã¹ã‚‹
 	int b_count = 0, w_count = 0;
 	
 	for(int i = 0; i < Othello::SIZE; ++i){
