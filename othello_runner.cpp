@@ -1,4 +1,5 @@
 #include <iostream>
+#include <vector>
 #include <string>
 #include <cstdio>
 #include <cstdlib>
@@ -12,7 +13,6 @@
 #endif
 
 const size_t BUFSIZE = 64;
-const char * NONCE_SOURCE = "qawsedrftgyhujikolp";
 
 // 0以上n未満の整数を返す
 int rand_int(int n){
@@ -23,6 +23,86 @@ int rand_int(int n){
 	return result;
 }
 
+// 実行結果を読み込む。
+// 返ってくる文字列は、以下のいずれかでなければならない。
+// ・「nonce 置く場所(行) 置く場所(列)」（置ける場合）
+// ・「nonce」（どこにも置けない場合）
+bool parse_sent_string(const char * buf, std::string & nonce, int & r, int & c){
+	// まず、スペースで区切るため、スペースの位置を列挙する
+	std::vector<char *> spaces;
+	char *end_r, *end_c;
+	
+	char * pos = std::strchr(buf, ' ');
+	while(pos != NULL){
+		spaces.push_back(pos);
+		pos = std::strchr(pos + 1, ' ');
+	}
+	
+	switch(spaces.size()){
+	case 0:
+		// buf中にスペースがない＝もう置ける場所がない（buf全体がnonce）
+		nonce.assign(buf);
+		r = -1;
+		c = -1;
+		return true;
+	case 2:
+		// 石が置かれる
+		nonce.assign(buf, spaces[0] - buf);
+		r = static_cast<int>(std::strtol(spaces[0] + 1, &end_r, 10));
+		c = static_cast<int>(std::strtol(spaces[1] + 1, &end_c, 10));
+		
+		// 数値を指定すべき部分で数字以外が見つかった場合、不正なフォーマット
+		if(end_r != spaces[1] || end_c != buf + std::strlen(buf)){
+			return false;
+		}
+		
+		return true;
+	default:
+		return false;
+	}
+}
+
+// (r, c)の場所にplayerが石を置き、裏返す。
+// 一つでも裏返したらtrue, そうでなければfalse
+bool flip_stones(Othello::Placement & placement, int r, int c, char player_color, char opponent_color){
+	// 8方向に石を伸ばしていく
+	int t;
+	bool flipped = false;
+	
+	for(int y = -1; y <= 1; ++y){
+		for(int x = -1; x <= 1; ++x){
+			if(x == 0 && y == 0) continue;
+			
+			// まず、隣が相手の石でなければ、石は裏返せない
+			if(placement.get(r + y, c + x) != opponent_color){
+				continue;
+			}
+			
+			// そして、そこから石を伸ばしていって、
+			// 対戦相手の石が続いて、そのあと自分の石が現れればよい
+			t = 2;
+			while(placement.get(r + y*t, c + x*t) == opponent_color){
+				++t;
+			}
+			
+			if(placement.get(r + y*t, c + x*t) == player_color){
+				// TODO: ここを保留する
+				// まず石を置く
+				placement.put(r, c, player_color);
+				
+				// 石を裏返す
+				for(; t >= 1; --t){
+					placement.put(r + y*t, c + x*t, player_color);
+				}
+				flipped = true;
+			}
+		}
+	}
+	
+	return flipped;
+}
+
+// メイン
 int main(int argc, char ** argv){
 	if(argc != 3){
 		std::cerr << "Usage: " << argv[0] << " PROGRAM1 PROGRAM2" << std::endl;
@@ -37,9 +117,8 @@ int main(int argc, char ** argv){
 	int opponent = 1;
 	char player_color, opponent_color;
 	
-	std::string command, nonce;
+	std::string command, nonce, received_nonce;
 	char buf[BUFSIZE];
-	char received_nonce[BUFSIZE];
 	int received_c = -1, received_r = -1;
 	bool last_choice_is_pass = false; // 直前がパスだったことを表す。2連続パスなら終了
 	
@@ -72,83 +151,62 @@ int main(int argc, char ** argv){
 			}
 		}
 		
-		// コマンドを実行
-		FILE * fp = POPEN(command.c_str(), "rb");
+		// コマンドを実行し、結果を受け取る
+		FILE * fp = POPEN(command.c_str(), "r");
 		if(fp == NULL){
-			std::cerr << "Failed in running: \"" << command << "\"" << std::endl;
+			std::cerr << "[ERROR] Failed in running: \"" << command << "\"" << std::endl;
 			return 1;
 		}
 		
-		// 実行結果を読み込む
 		fgets(buf, BUFSIZE, fp);
+		size_t buflen = std::strlen(buf);
 		
-		received_nonce[0] = '\0';
-		received_r = -1;
-		received_c = -1;
-		sscanf(buf, "%s %d %d", received_nonce, &received_r, &received_c);
+		// 末尾の改行を除去
+		if(buflen == 0 || buf[buflen - 1] != '\n'){
+			std::cerr << "[ERROR] Player " << player << ": Too long result received (received \"" << buf << "\") [" << static_cast<int>(buf[buflen - 1]) << "]" << std::endl;
+			return 1;
+		}
+		buf[buflen - 1] = '\0';
+		
+		// 受け取った文字列を解析
+		if(!parse_sent_string(buf, received_nonce, received_r, received_c)){
+			std::cerr << "[ERROR] Player " << player << ": Invalid format received: \"" << buf << "\" (Expected: \"NONCE ROWNUM COLNUM\")" << std::endl;
+			return 1;
+		}
 		
 		if(nonce.compare(received_nonce) != 0){
-			std::cerr << "Player " << player << ": Invalid nonce received: \"" << received_nonce << "\" (Expected: \"" << nonce << "\")" << std::endl;
+			std::cerr << "[ERROR] Player " << player << ": Invalid nonce received: \"" << received_nonce << "\" (Expected: \"" << nonce << "\")" << std::endl;
 			return 1;
 		}
 		
-		if(received_c == -1 && received_r == -1){
-			// もう置ける場所がない
+		// 有効な手が指されているか確認
+		if(received_r == -1 || received_c == -1){
+			// パスした場合
 			std::cout << "Player" << player << " passed his/her turn." << std::endl;
-			if(last_choice_is_pass) break;
+			if(last_choice_is_pass) break; // 二人ともパスした場合は終了
 			last_choice_is_pass = true;
 			continue;
-		}else{
-			std::cout << "Player" << player << " put at (" << received_r << ", " << received_c << ")." << std::endl;
-			last_choice_is_pass = false;
 		}
 		
+		std::cout << "Player" << player << " put at (" << received_r << ", " << received_c << ")." << std::endl;
+		
 		if(received_c < 0 || received_c >= Othello::SIZE || received_r < 0 || received_r >= Othello::SIZE){
-			std::cerr << "Player " << player << ": Invalid coordinates received: " << received_r << "," << received_c << std::endl;
+			// 座標が不正な場合（盤面の範囲外）
+			std::cerr << "[ERROR] Player " << player << ": Invalid coordinates received: " << received_r << "," << received_c << std::endl;
 			return 1;
 		}
 		
 		if(placement.get(received_r, received_c) != Othello::EMPTY){
-			std::cerr << "Player " << player << ": Piece already exists" << std::endl;
+			// 石が置かれていない場所以外に置こうとした場合
+			std::cerr << "[ERROR] Player " << player << ": Piece already exists" << std::endl;
 			return 1;
 		}
 		
+		last_choice_is_pass = false;
+		
 		// その場所に石を置いて裏返す
-		// 8方向に石を伸ばしていく
-		int t;
-		bool flipped = false;
-		
-		for(int y = -1; y <= 1; ++y){
-			for(int x = -1; x <= 1; ++x){
-				if(x == 0 && y == 0) continue;
-				
-				// まず、隣が相手の石でなければ、石は裏返せない
-				if(placement.get(received_r + y, received_c + x) != opponent_color){
-					continue;
-				}
-				
-				// そして、そこから石を伸ばしていって、
-				// 対戦相手の石が続いて、そのあと自分の石が現れればよい
-				t = 2;
-				while(placement.get(received_r + y*t, received_c + x*t) == opponent_color){
-					++t;
-				}
-				
-				if(placement.get(received_r + y*t, received_c + x*t) == player_color){
-					// TODO: ここを保留する
-					// まず石を置く
-					placement.put(received_r, received_c, player_color);
-					
-					// 石を裏返す
-					for(; t >= 1; --t){
-						placement.put(received_r + y*t, received_c + x*t, player_color);
-					}
-					flipped = true;
-				}
-			}
-		}
-		
-		if(!flipped){
+		if(!flip_stones(placement, received_r, received_c, player_color, opponent_color)){
+			// 一つも石が裏返らなかった場合は反則
 			std::cerr << "Player " << player << ": No stone flipped" << std::endl;
 			return 1;
 		}
