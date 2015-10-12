@@ -1,4 +1,5 @@
 #include <iostream>
+#include <stdexcept>
 #include <cstdlib>
 #include <cstring>
 
@@ -11,11 +12,6 @@ namespace Othello{
     };
     
     constexpr int SIZE = 8; // 盤面の大きさ
-    
-    class InvalidArgumentException{
-    public:
-        InvalidArgumentException(){}
-    };
     
     // 石の番号（BLACK, WHITEなど）を石の文字（'B', 'W'など）に変換
     // 引数が不正でも特段のチェックはしていない
@@ -93,17 +89,17 @@ namespace Othello{
             std::cerr << "Usage: " << progname << " NonceString Turn BoardString" << std::endl;
             std::cerr << "Turn must be 'B' OR 'W'." << std::endl;
             std::cerr << "BoardString must be /^[.BW]{" << (SIZE * SIZE) << "}$/." << std::endl;
-            throw InvalidArgumentException();
+            throw std::invalid_argument("Invalid command line argument(s)");
         }
         
     private:
         Placement pl_;
         std::string nonce_;
         Piece turn_;
+        bool is_valid;
         
-    public:
-        // コマンドライン引数から生成
-        Board(int argc, char ** argv){
+        // コマンドライン引数から盤面の状態を生成
+        void from_command_line(int argc, char ** argv){
             if(argc != 4) error_and_throw(argv[0], __LINE__);
             
             // ランダムな文字列（本来答えを返すべきクライアントが答えを返すように）
@@ -141,6 +137,21 @@ namespace Othello{
                     break;
                 }
             }
+        }
+        
+    public:
+        // コマンドライン引数から盤面の状態を生成
+        Board(int argc, char ** argv) : is_valid(true) {
+            try{
+                from_command_line(argc, argv);
+            }catch(const std::invalid_argument & ex){
+                is_valid = false;
+            }
+        }
+        
+        // 正常に初期化されたか
+        operator bool(void){
+            return is_valid;
         }
         
         // その場所に置かれている石

@@ -39,8 +39,9 @@ bool possible(const Othello::Board & board, int i, int j){
 }
 
 int main(int argc, char ** argv){
-    // 盤面を取得
+    // 盤面（石の配置＋次はどちらのプレイヤーの手番か＋nonce）を取得
     Othello::Board board(argc, argv);
+    if(!board) return 1; // 盤面が正常に取得できなかった場合
     
     // 盤面を見て、置ける場所があるか確認する。
     for(int i = 0; i < Othello::SIZE; ++i){
