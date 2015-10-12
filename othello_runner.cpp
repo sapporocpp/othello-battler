@@ -131,8 +131,9 @@ int main(int argc, char ** argv){
         // 表示
         std::cout << "----------" << std::endl;
         placement.display(received_r, received_c);
-        std::cout << "[Press Enter Key]" << std::endl;
-        fgets(buf, BUFSIZE, stdin);
+        std::cout << "[Press Enter Key]";
+        std::cout.flush();
+        std::cin.get();
         
         // コマンドラインを生成
         nonce.assign(1, rand_distribution(rand_engine));
