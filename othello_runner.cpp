@@ -14,7 +14,7 @@
 #define POPEN popen
 #endif
 
-const size_t BUFSIZE = 64;
+constexpr size_t BUFSIZE = 64;
 
 // 実行結果を読み込む。
 // 返ってくる文字列は、以下のいずれかでなければならない。

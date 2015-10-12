@@ -10,7 +10,7 @@ namespace Othello{
         INVALID = 4 // 無効な座標を指定した場合など
     };
     
-    const int SIZE = 8; // 盤面の大きさ
+    constexpr int SIZE = 8; // 盤面の大きさ
     
     class InvalidArgumentException{
     public:
