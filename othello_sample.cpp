@@ -7,9 +7,9 @@
 #include "othello_lib.hpp"
 
 // 指定した場所に石が置ける（＝少なくとも一つ、相手の石を裏返せる）か判定
-bool possible(const Othello::Board & board, int i, int j){
+bool possible(const Othello::Placement & placement, Othello::Piece my_color, Othello::Piece opponent_color, int i, int j){
     // もしその場所にすでに石がある場合は、置けない
-    if(board.place(i, j) != Othello::Piece::EMPTY) return false;
+    if(placement.get(i, j) != Othello::Piece::EMPTY) return false;
     
     // 8方向に石を伸ばしていく
     int t;
@@ -18,18 +18,18 @@ bool possible(const Othello::Board & board, int i, int j){
             if(x == 0 && y == 0) continue;
             
             // まず、隣が相手の石でなければ、石は裏返せない
-            if(board.place(i + y, j + x) != board.opponent_color()){
+            if(placement.get(i + y, j + x) != opponent_color){
                 continue;
             }
             
             // そして、そこから石を伸ばしていって、
             // 対戦相手の石が続いて、そのあと自分の石が現れればよい
             t = 2;
-            while(board.place(i + y*t, j + x*t) == board.opponent_color()){
+            while(placement.get(i + y*t, j + x*t) == opponent_color){
                 ++t;
             }
             
-            if(board.place(i + y*t, j + x*t) == board.my_color()){
+            if(placement.get(i + y*t, j + x*t) == my_color){
                 return true;
             }
         }
@@ -43,12 +43,17 @@ int main(int argc, char ** argv){
     Othello::Board board(argc, argv);
     if(!board) return 1; // 盤面が正常に取得できなかった場合
     
+    Othello::Placement placement(board.placement());
+    // 必要ならば、placementは複製できる。
+    // 相手の手のシミュレーションをする場合などに。
+    // Othello::Placement placement2(placement);
+    
     // 盤面を見て、置ける場所があるか確認する。
     for(int i = 0; i < Othello::SIZE; ++i){
         for(int j = 0; j < Othello::SIZE; ++j){
             // このサンプルでは、最初に「ここになら置いてよい」と
             // わかった場所に置くことにしている。
-            if(possible(board, i, j)){
+            if(possible(placement, board.my_color(), board.opponent_color(), i, j)){
                 board.put(i, j);
                 return 0;
             }

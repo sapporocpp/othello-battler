@@ -1,5 +1,7 @@
 #include <iostream>
 #include <stdexcept>
+#include <algorithm>
+#include <iterator>
 #include <cstdlib>
 #include <cstring>
 
@@ -26,6 +28,13 @@ namespace Othello{
     public:
         // 空の盤面を生成
         Placement(){}
+        
+        // 別の盤面をコピー
+        Placement(const Placement & other){
+            for(int i = 0; i < SIZE; ++i){
+                std::copy_n(other.places_[i], SIZE, places_[i]);
+            }
+        }
         
         // 初期盤面を生成
         Placement(bool initialized){
@@ -154,9 +163,12 @@ namespace Othello{
             return is_valid;
         }
         
-        // その場所に置かれている石
-        inline Piece place(int i, int j) const{
-            return pl_.get(i, j);
+        // 盤面情報のみを取得
+        // const参照で返すので、変更を加えたい場合は
+        // Placementクラスのインスタンスを別途生成すること。
+        //     Placement mutable_placement(this_board.placement());
+        const Placement & placement(void) const{
+            return pl_;
         }
         
         // 石を置くことに対応する出力を行う
