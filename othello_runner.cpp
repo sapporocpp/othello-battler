@@ -57,7 +57,7 @@ bool parse_sent_string(const char * buf, std::string & nonce, int & r, int & c){
 
 // (r, c)の場所にplayerが石を置き、裏返す。
 // 一つでも裏返したらtrue, そうでなければfalse
-bool flip_stones(Othello::Placement & placement, int r, int c, char player_color, char opponent_color){
+bool flip_stones(Othello::Placement & placement, int r, int c, Othello::Piece player_color, Othello::Piece opponent_color){
     // 8方向に石を伸ばしていく
     int t;
     bool flipped = false;
@@ -114,7 +114,7 @@ int main(int argc, char ** argv){
     
     int player; // 1 or 2 (argv[1] / argv[2] と指定するため)
     int opponent = 1;
-    char player_color, opponent_color;
+    Othello::Piece player_color, opponent_color;
     
     std::string command, nonce, received_nonce;
     char buf[BUFSIZE];
@@ -125,8 +125,8 @@ int main(int argc, char ** argv){
         player = opponent;
         opponent = 3 - player;
         
-        player_color = (player == 1) ? Othello::BLACK : Othello::WHITE;
-        opponent_color = (opponent == 1) ? Othello::BLACK : Othello::WHITE;
+        player_color = (player == 1) ? Othello::Piece::BLACK : Othello::Piece::WHITE;
+        opponent_color = (opponent == 1) ? Othello::Piece::BLACK : Othello::Piece::WHITE;
         
         // 表示
         std::cout << "----------" << std::endl;
@@ -195,7 +195,7 @@ int main(int argc, char ** argv){
             return 1;
         }
         
-        if(placement.get(received_r, received_c) != Othello::EMPTY){
+        if(placement.get(received_r, received_c) != Othello::Piece::EMPTY){
             // 石が置かれていない場所以外に置こうとした場合
             std::cerr << "[ERROR] Player " << player << ": Piece already exists" << std::endl;
             return 1;
@@ -217,11 +217,14 @@ int main(int argc, char ** argv){
     for(int i = 0; i < Othello::SIZE; ++i){
         for(int j = 0; j < Othello::SIZE; ++j){
             switch(placement.get(i, j)){
-            case Othello::BLACK:
+            case Othello::Piece::BLACK:
                 ++b_count;
                 break;
-            case Othello::WHITE:
+            case Othello::Piece::WHITE:
                 ++w_count;
+                break;
+            default:
+                // 何もしない（空きマスが残っていても構わない）
                 break;
             }
         }

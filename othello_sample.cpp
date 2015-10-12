@@ -9,7 +9,7 @@
 // 指定した場所に石が置ける（＝少なくとも一つ、相手の石を裏返せる）か判定
 bool possible(const Othello::Board & board, int i, int j){
     // もしその場所にすでに石がある場合は、置けない
-    if(board.place(i, j) != Othello::EMPTY) return false;
+    if(board.place(i, j) != Othello::Piece::EMPTY) return false;
     
     // 8方向に石を伸ばしていく
     int t;

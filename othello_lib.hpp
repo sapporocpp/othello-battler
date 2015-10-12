@@ -3,10 +3,13 @@
 #include <cstring>
 
 namespace Othello{
-    const char BLACK = 1; // 黒が置かれている
-    const char WHITE = 2; // 白が置かれている
-    const char EMPTY = 0; // 石は置かれていない
-    const char INVALID = 4; // 無効な座標を指定した場合など
+    enum class Piece : char {
+        BLACK = 1, // 黒が置かれている
+        WHITE = 2, // 白が置かれている
+        EMPTY = 0, // 石は置かれていない
+        INVALID = 4 // 無効な座標を指定した場合など
+    };
+    
     const int SIZE = 8; // 盤面の大きさ
     
     class InvalidArgumentException{
@@ -16,14 +19,14 @@ namespace Othello{
     
     // 石の番号（BLACK, WHITEなど）を石の文字（'B', 'W'など）に変換
     // 引数が不正でも特段のチェックはしていない
-    char get_piece_name(char color){
+    char get_piece_name(Piece color){
         return ".BW"[static_cast<size_t>(color)];
     }
     
     // 石の配置
     class Placement{
     private:
-        char places_[SIZE][SIZE];
+        Piece places_[SIZE][SIZE];
     public:
         // 空の盤面を生成
         Placement(){}
@@ -34,9 +37,9 @@ namespace Othello{
                 for(int i = 0; i < SIZE; ++i){
                     for(int j = 0; j < SIZE; ++j){
                         if((i == SIZE/2-1 || i == SIZE/2) && (j == SIZE/2-1 || j == SIZE/2)){
-                            places_[i][j] = ((i+j)%2 ? BLACK : WHITE);
+                            places_[i][j] = ((i+j)%2 ? Piece::BLACK : Piece::WHITE);
                         }else{
-                            places_[i][j] = EMPTY;
+                            places_[i][j] = Piece::EMPTY;
                         }
                     }
                 }
@@ -46,15 +49,15 @@ namespace Othello{
         // 位置を指定して石を設置
         // ※「設置」とは、単にその場所にその石がある状態にするだけで
         //   ゲームのルールとして置く（裏返したりもする）わけではない
-        inline bool put(int i, int j, char piece){
+        inline bool put(int i, int j, Piece piece){
             if(i < 0 || i >= SIZE || j < 0 || j >= SIZE) return false;
             places_[i][j] = piece;
             return true;
         }
         
         // 位置を指定して石を取得
-        inline char get(int i, int j) const{
-            if(i < 0 || i >= SIZE || j < 0 || j >= SIZE) return INVALID;
+        inline Piece get(int i, int j) const{
+            if(i < 0 || i >= SIZE || j < 0 || j >= SIZE) return Piece::INVALID;
             return places_[i][j];
         }
         
@@ -96,7 +99,7 @@ namespace Othello{
     private:
         Placement pl_;
         std::string nonce_;
-        char turn_;
+        Piece turn_;
         
     public:
         // コマンドライン引数から生成
@@ -109,10 +112,10 @@ namespace Othello{
             // どちらの手番か
             switch(argv[2][0]){
             case 'B':
-                turn_ = BLACK;
+                turn_ = Piece::BLACK;
                 break;
             case 'W':
-                turn_ = WHITE;
+                turn_ = Piece::WHITE;
                 break;
             default:
                 error_and_throw(argv[0], __LINE__);
@@ -125,13 +128,13 @@ namespace Othello{
             for(int i = 0; i < SIZE * SIZE; ++i){
                 switch(argv[3][i]){
                 case 'B':
-                    pl_.put(i/SIZE, i%SIZE, BLACK);
+                    pl_.put(i/SIZE, i%SIZE, Piece::BLACK);
                     break;
                 case 'W':
-                    pl_.put(i/SIZE, i%SIZE, WHITE);
+                    pl_.put(i/SIZE, i%SIZE, Piece::WHITE);
                     break;
                 case '.':
-                    pl_.put(i/SIZE, i%SIZE, EMPTY);
+                    pl_.put(i/SIZE, i%SIZE, Piece::EMPTY);
                     break;
                 default:
                     error_and_throw(argv[0], __LINE__);
@@ -141,7 +144,7 @@ namespace Othello{
         }
         
         // その場所に置かれている石
-        inline char place(int i, int j) const{
+        inline Piece place(int i, int j) const{
             return pl_.get(i, j);
         }
         
@@ -156,13 +159,13 @@ namespace Othello{
         }
         
         // 自分の石の色
-        inline char my_color(void) const{
+        inline Piece my_color(void) const{
             return turn_;
         }
         
         // 対戦相手の石の色
-        inline char opponent_color(void) const{
-            return(turn_ == BLACK ? WHITE : BLACK);
+        inline Piece opponent_color(void) const{
+            return(turn_ == Piece::BLACK ? Piece::WHITE : Piece::BLACK);
         }
     };
 }
