@@ -113,6 +113,7 @@ int main(int argc, char ** argv){
     Othello::Placement placement(true);
     
     int player; // 1 or 2 (argv[1] / argv[2] と指定するため)
+    char player_char; // " BW"[player]
     int opponent = 1;
     Othello::Piece player_color, opponent_color;
     
@@ -127,13 +128,19 @@ int main(int argc, char ** argv){
         
         player_color = (player == 1) ? Othello::Piece::BLACK : Othello::Piece::WHITE;
         opponent_color = (opponent == 1) ? Othello::Piece::BLACK : Othello::Piece::WHITE;
+        player_char = " BW"[player];
         
         // 表示
         std::cout << "----------" << std::endl;
         placement.display(received_r, received_c);
+        std::cout << "----------" << std::endl;
+        
+        // エンターキーを待つ
+        /*
         std::cout << "[Press Enter Key]";
         std::cout.flush();
         std::cin.get();
+        */
         
         // コマンドラインを生成
         nonce.assign(1, rand_distribution(rand_engine));
@@ -143,7 +150,7 @@ int main(int argc, char ** argv){
         command.append(" ");
         command.append(nonce); // nonce
         command.append(" ");
-        command.append(1, (player == 1 ? 'B' : 'W')); // どちらの手番か
+        command.append(1, player_char); // どちらの手番か
         command.append(" ");
         for(int i = 0; i < Othello::SIZE; ++i){
             for(int j = 0; j < Othello::SIZE; ++j){
@@ -152,6 +159,8 @@ int main(int argc, char ** argv){
         }
         
         // コマンドを実行し、結果を受け取る
+        std::chrono::system_clock::time_point command_start = std::chrono::system_clock::now();
+        
         FILE * fp = POPEN(command.c_str(), "r");
         if(fp == NULL){
             std::cerr << "[ERROR] Failed in running: \"" << command << "\"" << std::endl;
@@ -159,46 +168,49 @@ int main(int argc, char ** argv){
         }
         
         fgets(buf, BUFSIZE, fp);
-        size_t buflen = std::strlen(buf);
+        
+        std::chrono::system_clock::duration command_time = std::chrono::system_clock::now() - command_start;
+        std::cout << "Time expensed: " << (command_time.count() * std::chrono::system_clock::duration::period::num / std::chrono::system_clock::duration::period::den) << " + " << ((command_time.count() * std::chrono::system_clock::duration::period::num) % std::chrono::system_clock::duration::period::den) << "/" << std::chrono::system_clock::duration::period::den << " (s)" << std::endl;
         
         // 末尾の改行を除去
+        size_t buflen = std::strlen(buf);
         if(buflen == 0 || buf[buflen - 1] != '\n'){
-            std::cerr << "[ERROR] Player " << player << ": Too long result received (received \"" << buf << "\") [" << static_cast<int>(buf[buflen - 1]) << "]" << std::endl;
+            std::cerr << "[ERROR] Player " << player_char << ": Too long result received (received \"" << buf << "\") [" << static_cast<int>(buf[buflen - 1]) << "]" << std::endl;
             return 1;
         }
         buf[buflen - 1] = '\0';
         
         // 受け取った文字列を解析
         if(!parse_sent_string(buf, received_nonce, received_r, received_c)){
-            std::cerr << "[ERROR] Player " << player << ": Invalid format received: \"" << buf << "\" (Expected: \"NONCE ROWNUM COLNUM\")" << std::endl;
+            std::cerr << "[ERROR] Player " << player_char << ": Invalid format received: \"" << buf << "\" (Expected: \"NONCE ROWNUM COLNUM\")" << std::endl;
             return 1;
         }
         
         if(nonce.compare(received_nonce) != 0){
-            std::cerr << "[ERROR] Player " << player << ": Invalid nonce received: \"" << received_nonce << "\" (Expected: \"" << nonce << "\")" << std::endl;
+            std::cerr << "[ERROR] Player " << player_char << ": Invalid nonce received: \"" << received_nonce << "\" (Expected: \"" << nonce << "\")" << std::endl;
             return 1;
         }
         
         // 有効な手が指されているか確認
         if(received_r == -1 || received_c == -1){
             // パスした場合
-            std::cout << "Player" << player << " passed his/her turn." << std::endl;
+            std::cout << "Player " << player_char << " passed his/her turn." << std::endl;
             if(last_choice_is_pass) break; // 二人ともパスした場合は終了
             last_choice_is_pass = true;
             continue;
         }
         
-        std::cout << "Player" << player << " put at (" << received_r << ", " << received_c << ")." << std::endl;
+        std::cout << "Player " << player_char << " put at (" << received_r << ", " << received_c << ")." << std::endl;
         
         if(received_c < 0 || received_c >= Othello::SIZE || received_r < 0 || received_r >= Othello::SIZE){
             // 座標が不正な場合（盤面の範囲外）
-            std::cerr << "[ERROR] Player " << player << ": Invalid coordinates received: " << received_r << "," << received_c << std::endl;
+            std::cerr << "[ERROR] Player " << player_char << ": Invalid coordinates received: " << received_r << "," << received_c << std::endl;
             return 1;
         }
         
         if(placement.get(received_r, received_c) != Othello::Piece::EMPTY){
             // 石が置かれていない場所以外に置こうとした場合
-            std::cerr << "[ERROR] Player " << player << ": Piece already exists" << std::endl;
+            std::cerr << "[ERROR] Player " << player_char << ": Piece already exists" << std::endl;
             return 1;
         }
         
@@ -207,7 +219,7 @@ int main(int argc, char ** argv){
         // その場所に石を置いて裏返す
         if(!flip_stones(placement, received_r, received_c, player_color, opponent_color)){
             // 一つも石が裏返らなかった場合は反則
-            std::cerr << "Player " << player << ": No stone flipped" << std::endl;
+            std::cerr << "Player " << player_char << ": No stone flipped" << std::endl;
             return 1;
         }
     }
