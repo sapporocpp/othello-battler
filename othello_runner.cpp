@@ -10,11 +10,14 @@
 
 #if defined(_WIN16) || defined(_WIN32) || defined(_WIN64)
 #define POPEN _popen
+#define PCLOSE _pclose
 #else
 #define POPEN popen
+#define PCLOSE pclose
 #endif
 
 constexpr size_t BUFSIZE = 64;
+constexpr int MAX_SECONDS_PER_PLACEMENT = 3; // 1手にかけてよい秒数
 
 // 実行結果を読み込む。
 // 返ってくる文字列は、以下のいずれかでなければならない。
@@ -168,9 +171,17 @@ int main(int argc, char ** argv){
         }
         
         fgets(buf, BUFSIZE, fp);
+        PCLOSE(fp);
         
-        std::chrono::system_clock::duration command_time = std::chrono::system_clock::now() - command_start;
-        std::cout << "Time expensed: " << (command_time.count() * std::chrono::system_clock::duration::period::num / std::chrono::system_clock::duration::period::den) << " + " << ((command_time.count() * std::chrono::system_clock::duration::period::num) % std::chrono::system_clock::duration::period::den) << "/" << std::chrono::system_clock::duration::period::den << " (s)" << std::endl;
+        std::chrono::system_clock::duration command_time = std::chrono::system_clock::now() - command_start; // 指すのにかかった時間
+        int sec = command_time.count() * std::chrono::system_clock::duration::period::num / std::chrono::system_clock::duration::period::den; // そのうち、秒の部分
+        int fraction = (command_time.count() * std::chrono::system_clock::duration::period::num) % std::chrono::system_clock::duration::period::den; // そのうち、残りの部分
+        std::cout << "Time expensed: " << sec << " + " << fraction << "/" << std::chrono::system_clock::duration::period::den << " (s)" << std::endl;
+        
+        if(sec >= MAX_SECONDS_PER_PLACEMENT){
+            std::cerr << "[ERROR] Player " << player_char << ": Too much time to think" << std::endl;
+            return 1;
+        }
         
         // 末尾の改行を除去
         size_t buflen = std::strlen(buf);
