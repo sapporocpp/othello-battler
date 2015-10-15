@@ -1,5 +1,7 @@
-CPP=g++ -std=c++14
-CPPOPT=-Wall -g
+CPP=g++
+CPPOPT=-Wall -std=c++11
+#CPPOPT=-Wall -std=c++14 # If C++14 is available
+#CPPOPT=-Wall -std=c++11 -g # For debug
 
 default: othello_sample othello_runner
 
