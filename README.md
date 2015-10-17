@@ -17,12 +17,18 @@
 
 # 動かしてみる
 
+## Makefile を使う場合
+
 `make`でビルドができたら、
 
 `./othello_runner ./othello_sample ./othello_sample`  
 （Windows環境では`./`は不要）
 
 として実行します。これは、対戦状況を管理するプログラムである`othello_runner`が、黒プレイヤーを`othello_sample`、白プレイヤーを`othello_sample`として対戦させることを意味します。
+
+## Cloud9 IDE を使う場合
+
+- https://github.com/sapporocpp/othello-battler/wiki/Tips#cloud9-%E3%81%AE-tips
 
 # 指す手を決める方法
 
