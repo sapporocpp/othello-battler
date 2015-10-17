@@ -28,10 +28,10 @@ bool parse_sent_string(const char * buf, std::string & nonce, int & r, int & c){
     std::vector<char *> spaces;
     char *end_r, *end_c;
     
-    char * pos = std::strchr(buf, ' ');
+    char * pos = const_cast<char *>(std::strchr(buf, ' '));
     while(pos != NULL){
         spaces.push_back(pos);
-        pos = std::strchr(pos + 1, ' ');
+        pos = const_cast<char *>(std::strchr(pos + 1, ' '));
     }
     
     switch(spaces.size()){
